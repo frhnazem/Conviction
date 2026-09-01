@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Help — Conviction{% endblock %}
+{% block body %}
+<h1>Help</h1>
+{% include "_nav.html" %}
+
+<section class="card">
+  <h2 class="legend">What this is</h2>
+  <p>Conviction is a <strong>decision log</strong> for crypto traders. Write what you decided and why. It is not a signal service, not a trading bot, and not a promise of profit.</p>
+</section>
+<section class="card">
+  <h2 class="legend">How to write a raw note</h2>
+  <p>Write like a short message to yourself. Messy is OK — Extract will structure it.</p>
+  <ul class="plain muted">
+    <li>long btc above 95k, stop 93500, targeting 102</li>
+    <li>skip sol, nothing clean, staying flat</li>
+    <li>fomo buy eth, no stop, chasing the green candle</li>
+  </ul>
+</section>
+<section class="card">
+  <h2 class="legend">Weekly review & habits</h2>
+  <p>Weekly review shows counts from your logs and may suggest one habit rule when a pattern shows up often enough. Some weeks you’ll only see counts and no rule — that is normal. Rules are about your process, not trade signals.</p>
+  <p>Weekly review compares this period to the last one so you can see a habit shrinking.</p>
+  <p>Mark win/loss and whether a stop was respected, hit, or ignored so revenge and ignored-stop rules can appear.</p>
+</section>
+<section class="card">
+  <h2 class="legend">One habit at a time</h2>
+  <p>The app suggests one habit rule at a time so advice stays clear and warnings stay useful. You can dismiss a rule anytime. If a new rule fits better, accepting it replaces the previous one. You don’t need to manage or rank rules — the app prioritizes automatically. An optional focus theme can prefer one family when it qualifies.</p>
+</section>
+<section class="card">
+  <h2 class="legend">Soft warning</h2>
+  <p>If you accepted a rule and your new log breaks that rule (for example a Buy with FOMO and no invalidation), you’ll see a short warning. You can Log anyway or Edit. Habit rules never hard-block a log.</p>
+</section>
+<section class="card">
+  <h2 class="legend">Your data</h2>
+  <p>Logs stay in your account. Deleted logs are gone — they are not kept for hidden learning. Feedback on the Feedback page is for product development, not a public feed.</p>
+</section>
+<section class="card">
+  <h2 class="legend">Free tier</h2>
+  <p>10 logs per account on the free tier.</p>
+</section>
+<p class="muted">Conviction — discipline over noise.</p>
+{% endblock %}
