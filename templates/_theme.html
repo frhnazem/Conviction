@@ -1,0 +1,12 @@
+<form method="post" class="card">
+  <label class="field" for="focus_theme">Weekly focus theme</label>
+  <p class="muted" style="font-size:14px;margin:0 0 8px;">Optional. Auto keeps the built-in order. A theme only prefers that family when your logs actually match it. You do not rank multiple rules.</p>
+  <select id="focus_theme" name="focus_theme">
+    <option value="auto" {% if theme == 'auto' %}selected{% endif %}>Auto (app chooses)</option>
+    <option value="fomo" {% if theme == 'fomo' %}selected{% endif %}>FOMO</option>
+    <option value="rushed" {% if theme == 'rushed' %}selected{% endif %}>Rushed</option>
+    <option value="invalidation" {% if theme == 'invalidation' %}selected{% endif %}>Invalidation</option>
+    <option value="revenge" {% if theme == 'revenge' %}selected{% endif %}>Revenge after a loss</option>
+  </select>
+  <button class="btn btn-ghost" style="margin-top:10px;" type="submit" name="save_theme" value="1">Save theme</button>
+</form>
