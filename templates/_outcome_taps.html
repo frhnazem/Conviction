@@ -1,0 +1,24 @@
+{% if item.need_inv %}
+<p class="mark-result">Mark stop result?</p>
+<div class="tap-row">
+  {% for v in ['respected', 'hit', 'ignored'] %}
+  <form method="post" action="{{ url_for('set_outcome', decision_id=item.id) }}" style="display:inline;">
+    <input type="hidden" name="invalidation_result" value="{{ v }}">
+    <input type="hidden" name="next" value="{{ next_path|default('/app') }}">
+    <button type="submit" class="tap" type="submit">{{ v }}</button>
+  </form>
+  {% endfor %}
+</div>
+{% endif %}
+{% if item.need_trade %}
+<p class="mark-result">Mark result?</p>
+<div class="tap-row">
+  {% for v in ['win', 'loss', 'breakeven', 'skipped'] %}
+  <form method="post" action="{{ url_for('set_outcome', decision_id=item.id) }}" style="display:inline;">
+    <input type="hidden" name="trade_result" value="{{ v }}">
+    <input type="hidden" name="next" value="{{ next_path|default('/app') }}">
+    <button class="tap" type="submit">{{ v }}</button>
+  </form>
+  {% endfor %}
+</div>
+{% endif %}
