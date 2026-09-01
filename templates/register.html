@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Register — Conviction{% endblock %}
+{% block body %}
+<p class="kicker">Account</p>
+<h1>Get early access</h1>
+{% include "_nav.html" %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<form method="post" class="card">
+  <label class="field" for="email">Email</label>
+  <input type="email" id="email" name="email" required autocomplete="username">
+
+  <label class="field" for="password" style="margin-top:12px;">Password (at least 8 characters)</label>
+  <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+
+  <button class="btn btn-accent" style="margin-top:16px;" type="submit">Create account</button>
+</form>
+
+<p class="muted" style="font-size:14px;">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+<p class="tiny">Free tier: 10 logs per account.</p>
+{% endblock %}
