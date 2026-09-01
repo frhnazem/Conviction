@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Conviction — decision log for crypto traders{% endblock %}
+{% block body %}
+<p class="kicker">Conviction</p>
+{% include "_nav.html" %}
+
+<h1 class="hero">Decide before you trade.<br>Log what you actually decided.</h1>
+<p class="muted" style="font-size:16px;max-width:36ch;">
+  A decision log for crypto traders. Write the note. Extract structures it. Weekly review shows your process — not signals.
+</p>
+
+<p style="margin-top:20px;">
+  {% if user %}
+  <a class="btn btn-accent" href="{{ url_for('capture') }}" style="display:inline-flex;width:auto;padding:0 20px;text-decoration:none;">Open Capture</a>
+  {% else %}
+  <a class="btn btn-accent" href="{{ url_for('register') }}" style="display:inline-flex;width:auto;padding:0 20px;text-decoration:none;margin-right:8px;">Get early access</a>
+  <a class="btn btn-ghost" href="{{ url_for('login') }}" style="text-decoration:none;">Log in</a>
+  {% endif %}
+</p>
+
+<section class="card" style="margin-top:28px;">
+  <h2 class="legend">Who it’s for</h2>
+  <ul class="plain">
+    <li>Traders who want a clear record of the decision, not another chart overlay.</li>
+    <li>Anyone who notices FOMO, rushed entries, or ignored stops and wants the pattern visible.</li>
+    <li>People who prefer one simple rule at a time over a long checklist.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2 class="legend">What it does</h2>
+  <ul class="plain">
+    <li>Capture a raw note. Extract fills pair, bias, stop, target when the text supports it.</li>
+    <li>Weekly review counts your logs and may suggest one habit rule.</li>
+    <li>Soft warning if a new log breaks your accepted rule — never a hard block.</li>
+    <li>Mark win/loss and stop results so revenge and ignored-stop patterns can appear.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2 class="legend">Data</h2>
+  <p class="muted" style="font-size:14px;margin:0;">
+    Logs stay in your account. Deleted logs are gone. Feedback is for product development, not a public feed.
+  </p>
+</section>
+
+<footer>
+  <a href="{{ url_for('feedback') }}">Feedback</a>
+  ·
+  <a href="{{ url_for('help_page') }}">Help</a>
+  ·
+  Conviction — discipline over noise.
+</footer>
+{% endblock %}
