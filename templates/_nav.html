@@ -1,1 +1,12 @@
-
+<nav class="nav">
+  <a href="{{ url_for('capture') }}" class="{{ 'current' if page=='app' else '' }}">Capture</a>
+  <a href="{{ url_for('weekly') }}" class="{{ 'current' if page=='weekly' else '' }}">Weekly review</a>
+  <a href="{{ url_for('help_page') }}" class="{{ 'current' if page=='help' else '' }}">Help</a>
+  <a href="{{ url_for('feedback') }}" class="{{ 'current' if page=='feedback' else '' }}">Feedback</a>
+  <a href="{{ url_for('landing') }}" class="{{ 'current' if page=='home' else '' }}">Landing</a>
+  {% if user %}
+    <a href="{{ url_for('logout') }}">Log out</a>
+  {% else %}
+    <a href="{{ url_for('login') }}">Log in</a>
+  {% endif %}
+</nav>
