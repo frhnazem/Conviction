@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Feedback — Conviction{% endblock %}
+{% block body %}
+<p class="kicker">Product</p>
+<h1>Feedback</h1>
+{% include "_nav.html" %}
+
+<p class="muted" style="font-size:14px;margin-top:16px;">
+  Logs stay in your account. Deleted logs are not kept for hidden learning. Feedback is for product development — not a public feed. Other people’s notes are never shown here. Login is optional.
+</p>
+<p class="tiny">Stored notes: {{ count }}</p>
+
+{% if user %}
+  {% include "_theme.html" %}
+{% else %}
+  <p class="muted" style="font-size:13px;">Log in to set a weekly focus theme. You can send feedback without an account.</p>
+{% endif %}
+
+{% if thanks %}
+<div class="alert alert-ok">Thank you. Your note is saved. Stored notes: {{ count }}.</div>
+{% else %}
+<form method="post" class="card">
+  <fieldset>
+    <legend>1. Did you log more than once?</legend>
+    <div class="radios">
+      {% for v, lab in [('yes','Yes'),('maybe','Maybe'),('no','No'),('skip','Skip')] %}
+      <label><input type="radio" name="logged_more_than_once" value="{{ v }}" {% if v=='skip' %}checked{% endif %}> {{ lab }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Did a habit rule make sense?</legend>
+    <div class="radios">
+      {% for v, lab in [('yes','Yes'),('maybe','Maybe'),('no','No'),('skip','Skip')] %}
+      <label><input type="radio" name="rule_made_sense" value="{{ v }}" {% if v=='skip' %}checked{% endif %}> {{ lab }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>3. Soft warning</legend>
+    <div class="radios">
+      {% for v, lab in [('help','Helped'),('annoy','Annoyed'),('neither','Neither'),('skip','Skip')] %}
+      <label><input type="radio" name="warning_help_or_annoy" value="{{ v }}" {% if v=='skip' %}checked{% endif %}> {{ lab }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <label class="field" for="confusing">4. What was confusing</label>
+  <textarea id="confusing" name="confusing" rows="3" style="min-height:72px;"></textarea>
+
+  <fieldset style="margin-top:16px;">
+    <legend>5. Would you use this next week?</legend>
+    <div class="radios">
+      {% for v, lab in [('yes','Yes'),('maybe','Maybe'),('no','No'),('skip','Skip')] %}
+      <label><input type="radio" name="use_next_week" value="{{ v }}" {% if v=='skip' %}checked{% endif %}> {{ lab }}</label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <label class="field" for="ideas">6. Ideas / suggestions</label>
+  <textarea id="ideas" name="ideas" rows="4" placeholder="Optional" style="min-height:96px;"></textarea>
+
+  <button class="btn btn-accent" style="margin-top:16px;" type="submit" name="send" value="1">Send feedback</button>
+</form>
+{% endif %}
+{% endblock %}
