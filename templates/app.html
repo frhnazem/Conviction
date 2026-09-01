@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Capture — Conviction{% endblock %}
+{% block body %}
+<p class="kicker">Decision log</p>
+<h1>Conviction</h1>
+{% include "_nav.html" %}
+
+<p class="muted" style="font-size:14px;margin-top:12px;">Log the decision. No advice.</p>
+{% if user %}
+  <p class="tiny">{{ user.email }} · {{ log_count }} / {{ limit }} logs</p>
+{% endif %}
+
+{% if logged_ok %}
+<div class="alert alert-ok">Logged. It is in Recent and weekly review.</div>
+{% endif %}
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+{% if warn %}
+<div class="alert alert-hold">
+  <p>{{ warn }}</p>
+  <p class="muted" style="margin:8px 0 0;font-size:13px;">Habit rules never hard-block a log. You can Log anyway or Edit.</p>
+</div>
+{% endif %}
+
+{% if not at_limit or show_parsed %}
+<form method="post" class="card">
+  <label class="field" for="raw_text">Raw note</label>
+  <textarea id="raw_text" name="raw_text" rows="5" placeholder="long btc above 95k, stop 93500, targeting 102">{{ form.raw_text }}</textarea>
+
+  {% if not show_parsed %}
+  <button class="btn btn-accent" style="margin-top:12px;" type="submit" name="extract" value="1" {% if at_limit %}disabled{% endif %}>Extract</button>
+  {% endif %}
+
+  {% if show_parsed %}
+  <p class="muted" style="font-size:13px;margin-top:12px;">Edit anything below, then Log.</p>
+  {% if form.notes_for_user %}
+  <p class="alert alert-hold">{{ form.notes_for_user }}</p>
+  {% endif %}
+
+  <div class="row" style="margin-top:12px;">
+    <div>
+      <label class="field" for="pair">Pair</label>
+      <input type="text" id="pair" name="pair" value="{{ form.pair }}">
+    </div>
+    <div>
+      <label class="field" for="bias">Bias</label>
+      <select id="bias" name="bias">
+        <option value="" {% if not form.bias %}selected{% endif %}>—</option>
+        <option value="long" {% if form.bias == 'long' %}selected{% endif %}>long</option>
+        <option value="short" {% if form.bias == 'short' %}selected{% endif %}>short</option>
+        <option value="flat" {% if form.bias == 'flat' %}selected{% endif %}>flat</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label class="field" for="invalidation">Invalidation / stop</label>
+      <input type="text" id="invalidation" name="invalidation" value="{{ form.invalidation }}">
+    </div>
+    <div>
+      <label class="field" for="target">Target</label>
+      <input type="text" id="target" name="target" value="{{ form.target }}">
+    </div>
+  </div>
+
+  <label class="field" for="size_note">Size note</label>
+  <input type="text" id="size_note" name="size_note" value="{{ form.size_note }}">
+
+  <p class="legend" style="margin-top:14px;">Action</p>
+  <div class="actions">
+    {% for a in ['buy', 'hold', 'skip', 'reduce'] %}
+    <label class="chip {% if form.action == a %}on{% endif %}">
+      <input type="radio" name="action" value="{{ a }}" {% if form.action == a %}checked{% endif %}> {{ a }}
+    </label>
+    {% endfor %}
+  </div>
+
+  <p class="legend">Emotion</p>
+  <div class="emotions">
+    {% for e in ['FOMO', 'Rushed', 'Calm', 'Fear', 'Other'] %}
+    <label class="chip {% if form.emotion == e %}on{% endif %}">
+      <input type="radio" name="emotion" value="{{ e }}" {% if form.emotion == e %}checked{% endif %}> {{ e }}
+    </label>
+    {% endfor %}
+  </div>
+  <label class="field" for="emotion_other">Emotion (other)</label>
+  <input type="text" id="emotion_other" name="emotion_other" value="{{ form.emotion_other }}">
+
+  <input type="hidden" name="parse_confidence" value="{{ form.parse_confidence }}">
+
+  {% if warn %}
+  <div class="row" style="margin-top:14px;">
+    <button class="btn btn-ghost" type="submit" name="edit" value="1">Edit</button>
+    <button class="btn btn-buy" type="submit" name="log_anyway" value="1">Log anyway</button>
+  </div>
+  {% else %}
+  <button class="btn btn-buy" style="margin-top:14px;" type="submit" name="log" value="1" {% if at_limit %}disabled{% endif %}>Log</button>
+  {% endif %}
+  {% endif %}
+</form>
+{% else %}
+<div class="alert alert-hold">Free tier is 10 logs. Delete a log or upgrade later for unlimited.</div>
+{% endif %}
+
+{% if user %}
+{% set next_path = '/app' %}
+{% include "_theme.html" %}
+{% endif %}
+
+<section style="margin-top:24px;">
+  <h2 class="legend">Recent</h2>
+  {% if not recent %}
+  <p class="muted">No logs yet.</p>
+  {% endif %}
+  {% for item in recent %}
+  <article class="log">
+    <div class="log-head">
+      <div>
+        <strong>{{ item.pair or '—' }}</strong>
+        <span class="tiny"> · {{ item.action }}{% if item.bias %} · {{ item.bias }}{% endif %}{% if item.emotion %} · {{ item.emotion }}{% endif %}</span>
+        <p style="margin:6px 0 0;">{{ item.raw_text }}</p>
+        <p class="tiny">{{ item.created_at }}{% if item.invalidation %} · stop {{ item.invalidation }}{% endif %}{% if item.trade_result %} · {{ item.trade_result }}{% endif %}{% if item.invalidation_result %} · stop {{ item.invalidation_result }}{% endif %}</p>
+      </div>
+      <form method="post" action="{{ url_for('delete_log', decision_id=item.id) }}">
+        <button class="btn-danger" type="submit">Delete</button>
+      </form>
+    </div>
+    {% if item.prompt %}
+      {% include "_outcome_taps.html" %}
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+
+{% if pending_extra %}
+<section style="margin-top:20px;">
+  <h2 class="legend">Mark result?</h2>
+  <p class="muted" style="font-size:13px;">Older logs still missing a result. Mark them so revenge / ignored-stop rules can appear.</p>
+  {% for item in pending_extra %}
+  <article class="log">
+    <div class="log-head">
+      <div>
+        <strong>{{ item.pair or '—' }}</strong>
+        <span class="tiny"> · {{ item.action }}</span>
+        <p style="margin:6px 0 0;">{{ item.raw_text }}</p>
+        <p class="tiny">{{ item.created_at }}</p>
+      </div>
+    </div>
+    {% include "_outcome_taps.html" %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<p class="muted" style="font-size:12px;margin-top:12px;">Logs stay in your account. Deleted logs are gone — not kept for hidden learning. Feedback is for product development, not a public feed.</p>
+{% endblock %}
