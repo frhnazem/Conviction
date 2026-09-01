@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Weekly review — Conviction{% endblock %}
+{% block body %}
+<p class="kicker">Process</p>
+<h1>Weekly review</h1>
+{% include "_nav.html" %}
+
+{% set r = review %}
+{% set next_path = '/weekly' %}
+
+<section class="card">
+  <h2 class="legend">This period</h2>
+  <p class="tiny">{{ r.period_start[:10] }} → {{ r.period_end[:10] }}</p>
+  {% if r.message %}
+  <p class="muted">{{ r.message }}</p>
+  {% else %}
+  <div class="grid2" style="margin-top:10px;">
+    <div class="stat"><span class="muted">Logs</span><b>{{ r.total_decisions }}</b></div>
+    <div class="stat"><span class="muted">Invalidation noted</span><b>{{ r.invalidation_present_count }} / {{ r.total_decisions }}</b></div>
+  </div>
+  <p class="muted" style="margin-top:10px;font-size:14px;">
+    buy {{ r.by_action.buy }} · hold {{ r.by_action.hold }} · skip {{ r.by_action.skip }} · reduce {{ r.by_action.reduce }}
+  </p>
+  {% if r.bullets %}
+  <ul class="plain">
+    {% for b in r.bullets %}
+    <li>{{ b }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if r.demo_logs_included %}
+  <p class="tiny">(Includes demo logs.)</p>
+  {% endif %}
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2 class="legend">Progress</h2>
+  {% if r.progress and (r.progress.lines or r.progress.rule_line or r.progress.generic) %}
+    {% if r.progress.lines %}
+    <ul class="plain">
+      {% for line in r.progress.lines %}
+      <li>{{ line }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if r.progress.rule_line %}
+    <p><strong>{{ r.progress.rule_line }}</strong></p>
+    {% endif %}
+    {% if r.progress.generic %}
+    <ul class="plain muted">
+      {% for line in r.progress.generic %}
+      <li>{{ line }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  {% else %}
+  <p class="muted">Not enough history to compare periods yet.</p>
+  {% endif %}
+</section>
+
+{% if r.accepted_rules %}
+<section class="card">
+  <h2 class="legend">Accepted rule</h2>
+  {% for rule in r.accepted_rules %}
+  <p><strong>{{ rule.rule_text }}</strong></p>
+  <p class="tiny">{{ rule.pattern_id }}</p>
+  <form method="post" class="rule-actions">
+    <input type="hidden" name="pattern_id" value="{{ rule.pattern_id }}">
+    <input type="hidden" name="rule_text" value="{{ rule.rule_text }}">
+    <button class="btn-ghost" type="submit" name="rule_action" value="dismiss">Dismiss</button>
+  </form>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if r.show_suggest and r.suggested_rule %}
+<section class="card">
+  <h2 class="legend">Suggested habit rule</h2>
+  <p>{{ r.habit_evidence }}</p>
+  <p><strong>{{ r.suggested_rule }}</strong></p>
+  <form method="post" class="rule-actions">
+    <input type="hidden" name="pattern_id" value="{{ r.pattern_id }}">
+    <input type="hidden" name="rule_text" value="{{ r.suggested_rule }}">
+    <button class="btn btn-accent" type="submit" name="rule_action" value="accept" style="width:auto;padding:0 16px;">Accept</button>
+    <button class="btn-ghost" type="submit" name="rule_action" value="dismiss">Dismiss</button>
+  </form>
+  <p class="tiny" style="margin-top:10px;">One accepted rule at a time. Accept replaces the previous rule.</p>
+</section>
+{% elif r.no_habit_message %}
+<section class="card">
+  <p class="muted">{{ r.no_habit_message }}</p>
+</section>
+{% endif %}
+
+{% if r.pending_outcomes %}
+<section class="card">
+  <h2 class="legend">Mark result?</h2>
+  <p class="muted" style="font-size:13px;">Logs older than 24h still missing a result. Mark them so revenge / ignored-stop can appear.</p>
+  {% for item in r.pending_outcomes %}
+  <article class="log">
+    <div class="log-head">
+      <div>
+        <strong>{{ item.pair or '—' }}</strong>
+        <span class="tiny"> · {{ item.action }}</span>
+        <p style="margin:6px 0 0;">{{ item.raw_text }}</p>
+        <p class="tiny">{{ item.created_at }}</p>
+      </div>
+    </div>
+    {% include "_outcome_taps.html" %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if r.share_text %}
+<section class="card">
+  <h2 class="legend">Share text</h2>
+  <pre class="share">{{ r.share_text }}</pre>
+</section>
+{% endif %}
+
+<p class="muted" style="font-size:12px;">Counts only. No trade signals.</p>
+{% endblock %}
