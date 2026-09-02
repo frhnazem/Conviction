@@ -10,12 +10,6 @@
 </p>
 <p class="tiny">Stored notes: {{ count }}</p>
 
-{% if user %}
-  {% include "_theme.html" %}
-{% else %}
-  <p class="muted" style="font-size:13px;">Log in to set a weekly focus theme. You can send feedback without an account.</p>
-{% endif %}
-
 {% if thanks %}
 <div class="alert alert-ok">Thank you. Your note is saved. Stored notes: {{ count }}.</div>
 {% else %}
