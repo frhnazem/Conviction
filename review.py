@@ -218,7 +218,12 @@ def build_progress(
     prev_s = _period_stats(previous_rows)
     generic = [
         _cmp("Logs", cur_s["total"], prev_s["total"], has_previous),
-        _cmp("Invalidation missing", cur_s["invalidation_missing"], prev_s["invalidation_missing"], has_previous),
+        _cmp(
+            "Invalidation missing",
+            cur_s["invalidation_missing"],
+            prev_s["invalidation_missing"],
+            has_previous,
+        ),
     ]
     if cur_s["fomo"] or (has_previous and prev_s["fomo"]):
         generic.append(_cmp("FOMO tags", cur_s["fomo"], prev_s["fomo"], has_previous))
@@ -232,16 +237,14 @@ def build_progress(
 
 
 def outcome_prompt(row: dict, now: datetime | None = None) -> dict:
-    """Flag logs older than 24h that still need a result."""
+    """Flag logs that still need a result (available as soon as the log exists)."""
     now = now or datetime.now(timezone.utc)
-    ts = _parse_ts(row.get("created_at"), now)
-    old_enough = (now - ts) >= timedelta(hours=24)
     action = str(row.get("action") or "").strip().lower()
     trade_empty = not str(row.get("trade_result") or "").strip()
     inv_filled = bool(str(row.get("invalidation") or "").strip())
     inv_empty = not str(row.get("invalidation_result") or "").strip()
-    need_trade = old_enough and action in TRADE_ACTIONS and trade_empty
-    need_inv = old_enough and inv_filled and inv_empty
+    need_trade = action in TRADE_ACTIONS and trade_empty
+    need_inv = inv_filled and inv_empty
     return {
         "need_trade": need_trade,
         "need_inv": need_inv,
