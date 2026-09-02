@@ -8,6 +8,8 @@
 {% set r = review %}
 {% set next_path = '/weekly' %}
 
+{% include "_theme.html" %}
+
 <section class="card">
   <h2 class="legend">This period</h2>
   <p class="tiny">{{ r.period_start[:10] }} → {{ r.period_end[:10] }}</p>
@@ -27,9 +29,6 @@
     <li>{{ b }}</li>
     {% endfor %}
   </ul>
-  {% endif %}
-  {% if r.demo_logs_included %}
-  <p class="tiny">(Includes demo logs.)</p>
   {% endif %}
   {% endif %}
 </section>
