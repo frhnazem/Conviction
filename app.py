@@ -301,7 +301,12 @@ def capture():
         form = _form_state(parsed)
     else:
         form = _form_state(request.form)
-        if request.method == "POST" and (request.form.get("log") or request.form.get("extract") or request.form.get("edit") or request.form.get("log_anyway")):
+        if request.method == "POST" and (
+            request.form.get("log")
+            or request.form.get("extract")
+            or request.form.get("edit")
+            or request.form.get("log_anyway")
+        ):
             show_parsed = show_parsed or bool(form["raw_text"])
     return render_template(
         "app.html",
@@ -385,9 +390,20 @@ def set_outcome(decision_id: int):
 @login_required
 def weekly():
     user = current_user()
-    db.seed_product_memory()
+    if request.method == "POST" and request.form.get("save_theme"):
+        theme = request.form.get("focus_theme") or "auto"
+        if is_focus_theme(theme):
+            db.execute("UPDATE users SET focus_theme = ? WHERE id = ?", (theme, user["id"]))
+            user["focus_theme"] = theme
+        return redirect(url_for("weekly"))
+
     if request.method == "POST" and request.form.get("rule_action"):
-        _save_rule(user, request.form.get("rule_action"), request.form.get("pattern_id"), request.form.get("rule_text"))
+        _save_rule(
+            user,
+            request.form.get("rule_action"),
+            request.form.get("pattern_id"),
+            request.form.get("rule_text"),
+        )
         return redirect(url_for("weekly"))
 
     rows = db.query(
@@ -407,10 +423,14 @@ def weekly():
         (user["id"],),
     )
     decided_ids = {r["pattern_id"] for r in decided}
-    show_suggest = bool(habit.get("pattern_id") and habit.get("suggested_rule") and habit["pattern_id"] not in decided_ids)
+    show_suggest = bool(
+        habit.get("pattern_id")
+        and habit.get("suggested_rule")
+        and habit["pattern_id"] not in decided_ids
+    )
     accepted_pid = accepted[0]["pattern_id"] if accepted else None
     progress = build_progress(rows, now, habit.get("pattern_id"), accepted_pid)
-    no_habit = (not habit.get("pattern_id") and bool(rows))
+    no_habit = not habit.get("pattern_id") and bool(rows)
     pending = pending_outcomes(rows, now, limit=5)
     review.update(
         {
@@ -425,7 +445,12 @@ def weekly():
             "pending_outcomes": pending,
         }
     )
-    return render_template("weekly.html", review=review, **_nav("weekly"))
+    return render_template(
+        "weekly.html",
+        review=review,
+        theme=theme,
+        **_nav("weekly"),
+    )
 
 
 def _save_rule(user, action, pattern_id, rule_text):
@@ -463,12 +488,6 @@ def feedback():
     db.seed_product_memory()
     thanks = False
     error = ""
-    if request.method == "POST" and request.form.get("save_theme") and user:
-        theme = request.form.get("focus_theme") or "auto"
-        if is_focus_theme(theme):
-            db.execute("UPDATE users SET focus_theme = ? WHERE id = ?", (theme, user["id"]))
-            user["focus_theme"] = theme
-        return redirect(url_for("feedback"))
 
     if request.method == "POST" and request.form.get("send"):
         logged = _clean_choice(request.form.get("logged_more_than_once"), CHOICE_1235)
@@ -489,14 +508,11 @@ def feedback():
         )
         thanks = True
     count = int(db.query("SELECT COUNT(*) AS n FROM demo_feedback")[0]["n"])
-    theme = (user or {}).get("focus_theme") or "auto"
     return render_template(
         "feedback.html",
         thanks=thanks,
         error=error,
         count=count,
-        themes=FOCUS_THEMES,
-        theme=theme,
         **_nav("feedback"),
     )
 
@@ -510,12 +526,15 @@ def help_page():
 @login_required
 def api_weekly():
     user = current_user()
-    db.ensure_demo_seed(user["id"])
     db.seed_product_memory()
-    rows = db.query("SELECT * FROM decisions WHERE user_id = ? ORDER BY created_at DESC", (user["id"],))
+    rows = db.query(
+        "SELECT * FROM decisions WHERE user_id = ? ORDER BY created_at DESC",
+        (user["id"],),
+    )
     now = datetime.now(timezone.utc)
     review = build_weekly_review(rows, now)
-    habit = detect_habit_rule(rows, now, user.get("focus_theme") or "auto")
+    theme = user.get("focus_theme") or "auto"
+    habit = detect_habit_rule(rows, now, theme)
     accepted = db.query(
         "SELECT * FROM user_rules WHERE user_id = ? AND status = 'accepted'",
         (user["id"],),
@@ -527,7 +546,7 @@ def api_weekly():
             "pattern_id": habit.get("pattern_id"),
             "habit_evidence": habit.get("habit_evidence"),
             "suggested_rule": habit.get("suggested_rule"),
-            "focus_theme": user.get("focus_theme") or "auto",
+            "focus_theme": theme,
             "accepted_rules": accepted,
             "progress": progress,
             "no_habit_message": NO_HABIT_MESSAGE if (not habit.get("pattern_id") and rows) else None,
@@ -542,8 +561,6 @@ def api_feedback():
     user = current_user()
     if request.method == "POST":
         data = request.get_json(silent=True) or {}
-        if user and is_focus_theme(str(data.get("theme") or "")):
-            db.execute("UPDATE users SET focus_theme = ? WHERE id = ?", (data.get("theme"), user["id"]))
         db.execute(
             """
             INSERT INTO demo_feedback (
@@ -585,7 +602,12 @@ def api_rules():
             (user["id"],),
         )
         return jsonify({"rule": rows[0] if rows else None, "accepted": accepted}), 201
-    return jsonify(db.query("SELECT * FROM user_rules WHERE user_id = ? ORDER BY created_at DESC", (user["id"],)))
+    return jsonify(
+        db.query(
+            "SELECT * FROM user_rules WHERE user_id = ? ORDER BY created_at DESC",
+            (user["id"],),
+        )
+    )
 
 
 @app.get("/health")
