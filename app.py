@@ -385,7 +385,6 @@ def set_outcome(decision_id: int):
 @login_required
 def weekly():
     user = current_user()
-    db.ensure_demo_seed(user["id"])
     db.seed_product_memory()
     if request.method == "POST" and request.form.get("rule_action"):
         _save_rule(user, request.form.get("rule_action"), request.form.get("pattern_id"), request.form.get("rule_text"))
