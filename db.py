@@ -276,9 +276,8 @@ DEMO_NOTES = [
 
 
 def ensure_demo_seed(user_id: int) -> None:
-    n = query("SELECT COUNT(*) AS n FROM decisions WHERE user_id = ?", (user_id,))[0]["n"]
-    if n >= 6:
-        return
+    """Demo seed disabled — new accounts start empty."""
+    return
     room = max(0, FREE_TIER_LIMIT - int(n))
     need = min(6 - int(n), room)
     now = datetime.now(timezone.utc)
